@@ -178,6 +178,14 @@ scene(key_down(13,_)) :-
 		%switch it to closed array
 		removeFromOpen(G_currentindex),
 		insertToClosed(G_currentindex),
+
+		for(AdjacentXOffset,-100,100,100),
+			for(AdjacentYOffset,-100,100,100),
+				AdjacentX := tiles_x(G_currentindex) + AdjacentXOffset,
+				AdjacentY := tiles_Y(G_currentindex) + AdjacentYOffset,
+				write(AdjacentX),write(AdjacentY),nl,
+				fail,
+			fail.
 		
 		
 		
