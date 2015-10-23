@@ -8,18 +8,20 @@ array(walkable,60,1),
 array(f,60,9999),
 array(g,60,0),
 array(h,60,0),
-array(open,60,0),
+%open is a keyword
+array(openn,60,0),
 array(closed,60,0),
 array(parent,60,0),
 
 %---pathing---
-G_currentx := 0,
-G_currenty := 0,
-G_spawnx := 0,
-G_spawny := 300,
-G_open_index := 0,
+G_openindex := 0,
+G_spawnindex := 0,
+G_destindex := 0,
+G_openindex := 0,
 G_openlen := 0,
 G_closedlen := 0,
+G_currentindex := 0,
+G_lowestfindex := 0,
 
 %--images---
 G_ground := bitmap_image("sand.bmp",_),
@@ -155,14 +157,33 @@ scene(key_down(32,_)) :-
 
 scene(key_down(13,_)) :- 
 	G_build_mode := no,
-	for(I,0,500),
-		(I < 300 ->
-			write(I),
-			fail).
+	%add dest 
+	indexOf(1000,300),
+	G_destindex := G_tile_index,
+
+	%add spawn to open array
+	indexOf(0,300),
+	G_spawnindex := G_tile_index,
+	h(G_spawnindex) := 0,
+	g(G_spawnindex) := 0,
+	processF(G_spawnindex),
+	insertToOpen(G_spawnindex),
+	%while true with break
+		takeLowestF,
+		setCurrent(G_lowestfindex),
+
+		%if current is dest break
+		(G_currentindex =:= G_destindex -> true),
+		
+		%switch it to closed array
+		removeFromOpen(G_currentindex),
+		insertToClosed(G_currentindex),
+		
 		
 		
 	
 	
+		
 	
 donothing:-
 	true.
@@ -174,23 +195,37 @@ indexOf(X,Y) :-
 	G_tile_index := X//100 + 10 * Y//100,
 	true.
 	
-processF(tile_index) :-
-	f(tile_index) := g(tile_index) + h(tile_index),
+processF(Tile_index) :-
+	f(Tile_index) := g(Tile_index) + h(Tile_index),
 	true.
 
 takeLowestF :-
-	for(I,0,60).
-	
+	G_lowestfindex := 9999,
+	for(I,0,60),
+		(openn(I) =:= 1 ->
+			(f(I) < G_lowestfindex -> write(I),G_lowestfindex := f(I))
+		),
+		(I < 59 -> fail else true).		
+
+setCurrent(Tile_index) :-
+	G_currentindex := Tile_index,
+	true.
+
+removeCurrent :-
+	G_currentindex := 0,
+	true.
 
 insertToOpen(Tile_index) :-
-	Lowest := 99999,
-	for(I,0,60),
-		(open(I) < Lowest ->
-			Lowest := open(I),
-			Lowest_index := I
-		),
-		fail.
-		
+	openn(Tile_index) := 1,
+	true.
+
+removeFromOpen(Tile_index) :-
+	openn(Tile_index) := 0,
+	true.
+
+insertToClosed(Tile_index) :-
+	closed(Tile_index) := 1,
+	true.
 
 
 	
